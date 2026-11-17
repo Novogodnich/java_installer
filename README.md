@@ -20,6 +20,11 @@ A Bash script that installs Java directly from official [Eclipse Adoptium](https
 chmod +x install-java.sh
 sudo ./install-java.sh
 ```
+or
+
+```bash
+sudo bash ./install-java.sh
+```
 
 Follow the prompts to select the package type and Java version.
 

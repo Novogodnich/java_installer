@@ -26,6 +26,15 @@ if [[ -z "$java_version" ]]; then
   exit 1
 fi
 
+echo "Использовать ли скачанную версию по умолчанию?"
+read -p "y/N: " update
+
+if [ "$update" = "N" -o "$update" = "n" -o -z "$update" ]; then
+  UPDATE=false
+else
+  UPDATE=TRUE
+fi
+
 ARCH=$(uname -m)
 case "$ARCH" in
   x86_64|amd64)
@@ -62,16 +71,19 @@ TARGET_FOLDER_NAME=$(tar -tf "$TMP_DIR/java.tar.gz" | head -n 1 | cut -f1 -d"/")
 tar -xzf "$TMP_DIR/java.tar.gz" -C "$INSTALL_DIR"
 FINAL_PATH="$INSTALL_DIR/$TARGET_FOLDER_NAME"
 
-echo "Интеграция в систему (update-alternatives)..."
-update-alternatives --install /usr/bin/java java "$FINAL_PATH/bin/java" 100
-if [ -f "$FINAL_PATH/bin/javac" ]; then
-  update-alternatives --install /usr/bin/javac javac "$FINAL_PATH/bin/javac" 100
+if [ "$UPDATE" = "true" ]; then
+  echo "Интеграция в систему (update-alternatives)..."
+  update-alternatives --install /usr/bin/java java "$FINAL_PATH/bin/java" 100
+  if [ -f "$FINAL_PATH/bin/javac" ]; then
+    update-alternatives --install /usr/bin/javac javac "$FINAL_PATH/bin/javac" 100
+  fi
+
+  update-alternatives --set java "$FINAL_PATH/bin/java"
+  if [ -f "$FINAL_PATH/bin/javac" ]; then
+    update-alternatives --set javac "$FINAL_PATH/bin/javac"
+  fi
 fi
 
-update-alternatives --set java "$FINAL_PATH/bin/java"
-if [ -f "$FINAL_PATH/bin/javac" ]; then
-  update-alternatives --set javac "$FINAL_PATH/bin/javac"
-fi
 
 rm -r "$TMP_DIR"
 
